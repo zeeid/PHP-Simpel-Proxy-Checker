@@ -100,7 +100,8 @@
                     <?php
                     // Menambahkan opsi timeout kelipatan 5 dari 5 hingga 30
                     for ($i = 5; $i <= 30; $i += 5) {
-                        echo "<option value=\"$i\">$i</option>";
+                        $selected = ($i === 30) ? 'selected' : ''; // Tambahkan kondisi untuk memeriksa nilai 30
+                        echo "<option value=\"$i\" $selected>$i</option>";
                     }
                     ?>
                 </select>
