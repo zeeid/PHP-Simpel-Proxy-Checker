@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proxy Input</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function () {
             $("#loading").hide();
@@ -75,38 +77,44 @@
     </script>
 </head>
 <body>
-    <h1>Input Proxy dan Port</h1>
-    <form>
-        <label for="proxyAndPort">Proxy dan Port:</label>
-        <textarea name="proxyAndPort" id="proxyAndPort" rows="4" cols="50"></textarea><br>
+    <div class="container mt-5">
+        <h1 class="mb-4">Input Proxy dan Port</h1>
+        <form>
+            <div class="form-group">
+                <label for="proxyAndPort">Proxy dan Port:</label>
+                <textarea class="form-control" name="proxyAndPort" id="proxyAndPort" rows="4" cols="50"></textarea>
+            </div>
 
-        <label for="server">Pilih Server:</label>
-        <select name="server" id="server">
-            <option value="google">Google</option>
-            <option value="ouo">Ouo</option>
-        </select><br>
+            <div class="form-group">
+                <label for="server">Pilih Server:</label>
+                <select class="form-control" name="server" id="server">
+                    <option value="google">Google</option>
+                    <option value="ouo">Ouo</option>
+                </select>
+            </div>
 
-        <!-- Tambahkan elemen input untuk memilih timeout -->
-        <label for="timeout">Pilih Timeout (detik):</label>
-        <select name="timeout" id="timeout">
-            <?php
-            // Menambahkan opsi timeout kelipatan 5 dari 5 hingga 30
-            for ($i = 5; $i <= 30; $i += 5) {
-                echo "<option value=\"$i\">$i</option>";
-            }
-            ?>
-        </select><br>
+            <!-- Tambahkan elemen input untuk memilih timeout -->
+            <div class="form-group">
+                <label for="timeout">Pilih Timeout (detik):</label>
+                <select class="form-control" name="timeout" id="timeout">
+                    <?php
+                    // Menambahkan opsi timeout kelipatan 5 dari 5 hingga 30
+                    for ($i = 5; $i <= 30; $i += 5) {
+                        echo "<option value=\"$i\">$i</option>";
+                    }
+                    ?>
+                </select>
+            </div>
 
-        <input type="submit" value="Submit">
-    </form>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
 
-    <!-- <div id="result"></div> -->
+        <div id="loading" class="mt-3" style="display: none;">
+            <p>Loading...</p>
+        </div>
 
-    <div id="loading">
-        Loading...
+        <h2 class="mt-4">Working Proxy (Total: <span id="numWorkingProxies">0</span>):</h2>
+        <textarea class="form-control" id="workingProxies" rows="4" cols="50" readonly></textarea>
     </div>
-
-    <h2>Working Proxy (Total: <span id="numWorkingProxies">0</span>):</h2>
-    <textarea id="workingProxies" rows="4" cols="50" readonly></textarea>
 </body>
 </html>
