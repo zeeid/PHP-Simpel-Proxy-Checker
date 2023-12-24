@@ -12,6 +12,8 @@
             $("#loading").hide();
             $("form").submit(function (event) {
                 event.preventDefault();
+                $("#btnsubmit").prop('disabled', true);
+
                 var proxyAndPort = $("#proxyAndPort").val();
                 var server = $("#server").val();
                 var timeout = $("#timeout").val(); // Mengambil nilai timeout
@@ -36,10 +38,13 @@
                 var workingProxies = [];
                 $("#loading").show();
 
+                // Inisialisasi currentTask
+                var currentTask = 0;
+
                 // Eksekusi cURL secara asinkron untuk setiap proxy dan URL
-                $.each(urls, function (index, url) {
-                    // Loop through each proxy
-                    $.each(proxies, function (proxyIndex, proxy) {
+                $.each(proxies, function (proxyIndex, proxy) {
+                    // Loop through each URL
+                    $.each(urls, function (urlIndex, url) {
                         $.ajax({
                             url: 'process.php',
                             type: 'POST',
@@ -53,21 +58,37 @@
                                 if (response.includes('Berhasil')) {
                                     workingProxies.push(proxy);
                                 }
-                            },
-                            error: function () {
-                                // Handle errors if needed
-                            },
-                            complete: function () {
+                                
                                 // Setelah selesai, tambahkan working proxies ke textarea
                                 $("#workingProxies").val(workingProxies.join('\n'));
 
                                 // Tampilkan jumlah proxy yang berhasil
                                 $("#numWorkingProxies").text(workingProxies.length);
 
-                                // Sembunyikan loading setelah selesai pengecekan
-                                if (index === urls.length - 1 && proxyIndex === proxies.length - 1) {
+                                // Tambahkan 1 ke currentTask setiap kali tugas selesai
+                                currentTask++;
+
+                                // Hitung persentase berdasarkan jumlah proxy dan URL yang sudah diperiksa
+                                var totalTasks = proxies.length * urls.length;
+                                var percentage = (currentTask / totalTasks) * 100;
+
+                                // Perbarui nilai persentase pada progress bar
+                                $("#progressBar").css("width", percentage + "%").attr("aria-valuenow", percentage).text(Math.round(percentage) + "%");
+
+                                // Jika semua tugas selesai, perbarui persentase secara keseluruhan
+                                if (currentTask === totalTasks) {
+                                    // Perbarui nilai persentase pada progress bar
+                                    $("#progressBar").css("width", "100%").attr("aria-valuenow", 100);
                                     $("#loading").hide();
+                                    $("#btnsubmit").prop('disabled', false);
                                 }
+                                
+                            },
+                            error: function () {
+                                // Handle errors if needed
+                            },
+                            complete: function () {
+
                             }
                         });
                     });
@@ -107,11 +128,20 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" id="btnsubmit" class="btn btn-primary">Submit</button>
         </form>
 
-        <div id="loading" class="mt-3" style="display: none;">
-            <p>Loading...</p>
+        <div class="container mt-5">
+            <div id="loading" class="mt-3" style="display: none;">
+                <p>Loading...</p>
+            </div>
+
+            <!-- Tambahkan elemen progress -->
+            <div id="progressContainer">
+                <div class="progress">
+                    <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
         </div>
 
         <h2 class="mt-4">Working Proxy (Total: <span id="numWorkingProxies">0</span>):</h2>
