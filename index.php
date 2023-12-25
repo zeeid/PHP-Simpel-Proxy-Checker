@@ -40,61 +40,92 @@
 
                 // Inisialisasi currentTask
                 var currentTask = 0;
+                var taskForLoading = 0;
 
-                // Eksekusi cURL secara asinkron untuk setiap proxy dan URL
-                $.each(proxies, function (proxyIndex, proxy) {
-                    // Loop through each URL
-                    $.each(urls, function (urlIndex, url) {
-                        $.ajax({
-                            url: 'process.php',
-                            type: 'POST',
-                            data: {
-                                proxyAndPort: proxy,
-                                server: server,
-                                url: url,
-                                timeout: timeout // Mengirimkan nilai timeout ke server
-                            },
-                            success: function (response) {
-                                if (response.includes('Berhasil')) {
-                                    workingProxies.push(proxy);
-                                }
-                                
-                                // Setelah selesai, tambahkan working proxies ke textarea
-                                $("#workingProxies").val(workingProxies.join('\n'));
+                // Fungsi untuk memproses blok proxy
+                function processProxyBlock(startIndex) {
+                    var endIndex = Math.min(startIndex + 10, proxies.length);
+                    console.log("endIndex "+endIndex)
 
-                                // Tampilkan jumlah proxy yang berhasil
-                                $("#numWorkingProxies").text(workingProxies.length);
+                    // Ambil blok proxy
+                    var proxyBlock = proxies.slice(startIndex, endIndex);
+                    var totalTasks = proxies.length * urls.length;
 
-                                // Tambahkan 1 ke currentTask setiap kali tugas selesai
-                                currentTask++;
+                    // Eksekusi cURL secara asinkron untuk setiap proxy dan URL
+                    $.each(proxyBlock, function (proxyIndex, proxy) {
+                        // Loop through each URL
+                        $.each(urls, function (urlIndex, url) {
+                            $.ajax({
+                                url: 'process.php',
+                                type: 'POST',
+                                data: {
+                                    proxyAndPort: proxy,
+                                    server: server,
+                                    url: url,
+                                    timeout: timeout // Mengirimkan nilai timeout ke server
+                                },
+                                success: function (response) {
+                                    if (response.includes('Berhasil')) {
+                                        workingProxies.push(proxy);
+                                    }
 
-                                // Hitung persentase berdasarkan jumlah proxy dan URL yang sudah diperiksa
-                                var totalTasks = proxies.length * urls.length;
-                                var percentage = (currentTask / totalTasks) * 100;
+                                    // Setelah selesai, tambahkan working proxies ke textarea
+                                    $("#workingProxies").val(workingProxies.join('\n'));
 
-                                // Perbarui nilai persentase pada progress bar
-                                $("#progressBar").css("width", percentage + "%").attr("aria-valuenow", percentage).text(Math.round(percentage) + "%");
+                                    // Tampilkan jumlah proxy yang berhasil
+                                    $("#numWorkingProxies").text(workingProxies.length);
 
-                                // Jika semua tugas selesai, perbarui persentase secara keseluruhan
-                                if (currentTask === totalTasks) {
+                                    // Tambahkan 1 ke currentTask setiap kali tugas selesai
+                                    currentTask++;
+                                    taskForLoading++;
+
+                                    console.log(taskForLoading+"|"+totalTasks+" "+proxy)
+
+                                    // Hitung persentase berdasarkan jumlah proxy dan URL yang sudah diperiksa
+                                    
+                                    var percentage = (taskForLoading / totalTasks) * 100;
+
                                     // Perbarui nilai persentase pada progress bar
-                                    $("#progressBar").css("width", "100%").attr("aria-valuenow", 100);
-                                    $("#loading").hide();
-                                    $("#btnsubmit").prop('disabled', false);
-                                }
-                                
-                            },
-                            error: function () {
-                                // Handle errors if needed
-                            },
-                            complete: function () {
+                                    $("#progressBar").css("width", percentage + "%").attr("aria-valuenow", percentage).text(Math.round(percentage) + "%");
 
-                            }
+                                    // Jika semua tugas selesai, perbarui persentase secara keseluruhan
+                                    if (taskForLoading === totalTasks) {
+                                        // Perbarui nilai persentase pada progress bar
+                                        $("#progressBar").css("width", "100%").attr("aria-valuenow", 100);
+                                        $("#loading").hide();
+                                        $("#btnsubmit").prop('disabled', false);
+                                    }
+                                },
+                                error: function () {
+                                    // Handle errors if needed
+                                },
+                                complete: function () {
+                                    // Jika belum mencapai akhir proxies, panggil lagi fungsi untuk memproses blok berikutnya
+
+                                    if (currentTask == 10) {
+                                        if (currentTask < totalTasks) {
+                                            console.log(currentTask+" masuk sini "+endIndex )
+                                            currentTask = 0
+                                            processProxyBlock(endIndex);
+                                        }else{
+                                            console.log("MASUK SINI")
+                                        }
+                                    }
+                                    // else{
+                                    //     console.log("masuk else "+currentTask)
+                                    //     processProxyBlock(endIndex+1);
+                                    // }
+                                }
+                            });
                         });
                     });
-                });
+                }
+
+                // Mulai pemrosesan blok proxy dari awal (indeks 0)
+                processProxyBlock(0);
             });
         });
+
     </script>
 </head>
 <body>
@@ -121,7 +152,7 @@
                     <?php
                     // Menambahkan opsi timeout kelipatan 5 dari 5 hingga 30
                     for ($i = 5; $i <= 30; $i += 5) {
-                        $selected = ($i === 30) ? 'selected' : ''; // Tambahkan kondisi untuk memeriksa nilai 30
+                        $selected = ($i === 10) ? 'selected' : ''; // Tambahkan kondisi untuk memeriksa nilai 30
                         echo "<option value=\"$i\" $selected>$i</option>";
                     }
                     ?>
