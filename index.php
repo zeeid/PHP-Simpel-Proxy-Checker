@@ -132,7 +132,7 @@
                 <label for="server">Pilih Server:</label>
                 <select class="form-control" name="server" id="server">
                     <option value="google">Google</option>
-                    <option value="ouo">Ouo</option>
+                    <option value="ouo">CloudFlare</option>
                 </select>
             </div>
 
