@@ -45,7 +45,6 @@
                 // Fungsi untuk memproses blok proxy
                 function processProxyBlock(startIndex) {
                     var endIndex = Math.min(startIndex + 10, proxies.length);
-                    console.log("endIndex "+endIndex)
 
                     // Ambil blok proxy
                     var proxyBlock = proxies.slice(startIndex, endIndex);
@@ -79,7 +78,6 @@
                                     currentTask++;
                                     taskForLoading++;
 
-                                    console.log(taskForLoading+"|"+totalTasks+" "+proxy)
 
                                     // Hitung persentase berdasarkan jumlah proxy dan URL yang sudah diperiksa
                                     
@@ -104,17 +102,10 @@
 
                                     if (currentTask == 10) {
                                         if (currentTask < totalTasks) {
-                                            console.log(currentTask+" masuk sini "+endIndex )
                                             currentTask = 0
                                             processProxyBlock(endIndex);
-                                        }else{
-                                            console.log("MASUK SINI")
                                         }
                                     }
-                                    // else{
-                                    //     console.log("masuk else "+currentTask)
-                                    //     processProxyBlock(endIndex+1);
-                                    // }
                                 }
                             });
                         });
